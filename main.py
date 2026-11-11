@@ -4,18 +4,19 @@ import re
 import os
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from aiohttp import web
 
 # Берем токен из настроек хостинга
 TOKEN = os.getenv("BOT_TOKEN")
+PORT = int(os.getenv("PORT", 10000))
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
-# Обработка команды .buy в бизнес-чатах
+# Обработка команды .buy
 @dp.business_message(F.text.startswith("!buy") | F.text.startswith(".buy"))
 async def create_offer(message: types.Message):
-    # Ищем ссылку и цену в тексте
     pattern = r'(?:!buy|\.buy)\s+(https?://\S+)\s+(\d+)\s+(Stars|TON)\s+(\w+)'
     match = re.search(pattern, message.text)
     
@@ -25,7 +26,6 @@ async def create_offer(message: types.Message):
 
     nft_link, price, currency, lang = match.groups()
     
-    # Кнопки для оффера
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="✅ Принять", callback_data="accept_offer"),
@@ -39,7 +39,6 @@ async def create_offer(message: types.Message):
         f"Ссылка: {nft_link}"
     )
     
-    # Отправляем от вашего имени
     await bot.send_message(
         chat_id=message.chat.id,
         text=text,
@@ -56,7 +55,6 @@ async def process_accept(callback: CallbackQuery):
     ])
 
     await callback.answer("Оффер принят!")
-    
     text = "Сделка подтверждена. Передайте подарок покупателю."
     
     try:
@@ -78,9 +76,25 @@ async def process_decline(callback: CallbackQuery):
     except Exception:
         pass
 
+# --- БЛОК ДЛЯ RENDER (чтобы он не выключал бота) ---
+async def handle(request):
+    return web.Response(text="Bot is alive!")
+
+async def start_web_server():
+    app = web.Application()
+    app.router.add_get('/', handle)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, '0.0.0.0', PORT)
+    await site.start()
+    print(f"Веб-сервер запущен на порту {PORT}")
+
 async def main():
     print("Бизнес-бот запущен!")
-    await dp.start_polling(bot)
+    await asyncio.gather(
+        start_web_server(),
+        dp.start_polling(bot)
+    )
 
 if __name__ == "__main__":
     asyncio.run(main())
