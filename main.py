@@ -15,7 +15,7 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
 # Обработка команды .buy
-@dp.business_message(F.text.startswith("!buy") | F.text.startswith(".buy"))
+@dp.message(F.text.startswith("!buy") | F.text.startswith(".buy"))
 async def create_offer(message: types.Message):
     pattern = r'(?:!buy|\.buy)\s+(https?://\S+)\s+(\d+)\s+(Stars|TON)\s+(\w+)'
     match = re.search(pattern, message.text)
