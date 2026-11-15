@@ -50,6 +50,7 @@ async def create_offer(message: types.Message):
 # Обработка кнопки "Принять"
 @dp.callback_query(F.data == "accept_offer")
 async def process_accept(callback: CallbackQuery):
+    # Ссылка на ваш профиль
     MY_PROFILE_LINK = "https://t.me/tamerlan111" 
 
     transfer_keyboard = InlineKeyboardMarkup(inline_keyboard=[
@@ -58,17 +59,21 @@ async def process_accept(callback: CallbackQuery):
 
     await callback.answer("Оффер принят!")
     
-    text = "Сделка подтверждена. Передайте подарок по кнопке ниже."
+    # ИЗМЕНЕННЫЙ ТЕКСТ СООБЩЕНИЯ
+    text = "Сделка подтверждена. Передайте покупателю @tamerlan111 по кнопке ниже."
     
     try:
+        # Отправляем сообщение в тот же чат
         await bot.send_message(
             chat_id=callback.message.chat.id,
             text=text,
             reply_markup=transfer_keyboard,
             business_connection_id=callback.message.business_connection_id
         )
+        # Убираем старые кнопки, чтобы не спамить
         await callback.message.edit_reply_markup(reply_markup=None)
     except Exception:
+        # Если бизнес-подключения нет, отправляем как обычный бот
         await callback.message.answer(text, reply_markup=transfer_keyboard)
 
 # Обработка кнопки "Отклонить"
