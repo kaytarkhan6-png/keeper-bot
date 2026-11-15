@@ -52,8 +52,8 @@ async def create_offer(message: types.Message):
 async def process_accept(callback: CallbackQuery):
     await callback.answer("Оффер принят!")
     
-    # Новый текст без упоминания кнопки
-    text = "Сделка подтверждена. Передайте покупателю @tamerlan111."
+    # ИЗМЕНЕННЫЙ ТЕКСТ
+    text = "Сделка подтверждена. Передайте NFT покупателю @tamerlan111."
     
     try:
         # Отправляем только текст (без кнопки)
